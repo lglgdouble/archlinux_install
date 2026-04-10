@@ -86,3 +86,24 @@ sudo pacman -Sy --noconfirm --needed \
 paru -Sy --noconfirm --needed \
   google-chrome
 sudo pacman -Sy --noconfirm --needed xorg-server-xvfb
+
+
+
+#
+#
+#https://v2raya.org/
+paru -Sy --noconfirm --needed v2raya
+sudo systemctl enable v2raya
+sudo lsof -i:2017
+
+
+
+
+#
+#
+#https://localsend.org/zh-CN
+#https://github.com/meowrain/localsend-go
+#https://github.com/SykikXO/jocalsend
+paru -Sy --noconfirm --needed localsend-bin jocalsend localsend-go #可能需要设置http代理，git下载慢
+
+
