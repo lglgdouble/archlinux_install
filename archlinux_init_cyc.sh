@@ -68,7 +68,7 @@ while [ $# != 0 ]; do
     esac
     shift
 done
-echo "$(date "+%F %R:%S")  -->$(pwd) -->  ${arg}"  | tee -a /tmp/new_curl.log
+echo "$(date '+%Y-%m-%d %H:%M:%S')  -->$(pwd) -->  ${arg}"  | tee -a /tmp/new_curl.log >/dev/null
 curl_old ${arg}
 EOF
 
@@ -112,6 +112,16 @@ go env -w GOPROXY=https://goproxy.cn,direct
 #https://npmmirror.com/
 sudo pacman -Sy --noconfirm --needed  npm
 npm config set registry https://registry.npmmirror.com
+
+
+#
+#
+#
+#zsh
+#https://github.com/ohmyzsh/ohmyzsh/wiki
+#sh -c "$(curl -fsSL https://install.ohmyz.sh)"
+sudo pacman -Sy --noconfirm --needed  zsh  zsh-completions
+
 
 #
 #
