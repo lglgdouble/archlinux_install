@@ -81,7 +81,7 @@ systemctl enable NetworkManager
 systemctl enable sshd
 
 
-echo '%wheel ALL=(ALL:ALL) ALL' >/etc/sudoers.d/wheel && chmod $(stat -c "%a" /etc/sudoers) /etc/sudoers.d/wheel
+echo '%wheel ALL=(ALL:ALL) ALL' >/etc/sudoers.d/wheel && chmod --reference /etc/sudoers /etc/sudoers.d/wheel && chown --reference /etc/sudoers /etc/sudoers.d/wheel
 useradd -m -s /bin/bash -G wheel cyc
 echo 'cyc' | passwd -s cyc
 

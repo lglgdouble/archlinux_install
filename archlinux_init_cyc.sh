@@ -5,6 +5,7 @@ cd "${cdpwd}" || exit
 #
 #
 #
+export cdpwd
 export github_proxy="https://ghfast.top"
 export dockerhub_proxy="https://docker.m.daocloud.io"
 
@@ -15,40 +16,11 @@ echo 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch' | sudo tee /e
 sudo sed -i '/archlinuxcn/d' /etc/pacman.conf
 echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' | sudo tee -a /etc/pacman.conf
 
-#
-#
-#
-#
-#pip
-mkdir -p ~/.pip/ && cat <<'EOF' | tee ~/.pip/pip.conf >/dev/null
-[global]
-index-url = http://mirrors.aliyun.com/pypi/simple/
-
-[install]
-trusted-host=mirrors.aliyun.com
-EOF
-
 
 #
 #
 #
-#git
-cat <<EOF | tee ~/.gitconfig >/dev/null
-[user]
-	email = cyc_archlinux_dev
-	name = cyc_archlinux_dev
-[init]
-	defaultBranch = main
-[url "https://github.com/lglgdouble/"]
-	insteadOf = https://github.com/lglgdouble/
-[url "${github_proxy}/https://github.com/"]
-	insteadOf = https://github.com/
-EOF
-
-#
-#
-#
-sudo pacman -Syu --noconfirm --needed networkmanager openssh
+sudo pacman -Syu --noconfirm --needed archlinuxcn-keyring  networkmanager openssh paru
 sudo systemctl enable NetworkManager
 sudo systemctl enable sshd
 sudo nmcli device status
@@ -60,29 +32,106 @@ sudo nmcli connection modify "Wired connection 1" \
 sudo systemctl restart NetworkManager
 sudo systemctl restart sshd
 
+#
+#
+#
+#
+#curl
+change_curl="1"
+if [ "$change_curl" = "" ]; then
+    echo "。。。。。。。。。。。。。恢复curl"
+    sudo pacman -Syu --noconfirm curl
+else
+    echo "。。。。。。。。。。。。。改变curl"
+    sudo pacman -Syu --noconfirm curl
+    curl=$(readlink -f $(which curl))
+    old_curl=${curl}_old
+    sudo mv ${curl} ${old_curl}
 
-##
-##
-##
+cat <<'EOF' | sudo tee ${curl} >/dev/null
+#!/bin/bash
+arg=""
+while [ $# != 0 ]; do
+    case "$1" in
+    https://raw.githubusercontent.com*)
+        xx=${1/#"https://raw.githubusercontent.com/"/"https://ghfast.top/https://raw.githubusercontent.com/"}
+        arg="${arg} $xx"
+        ;;
+
+    https://github.com*)
+        xx=${1/#"https://github.com/"/"https://ghfast.top/https://github.com/"}
+        arg="${arg} $xx"
+        ;;
+    *)
+        arg="${arg} $1"
+        ;;
+    esac
+    shift
+done
+echo "$(date "+%F %R:%S")  -->$(pwd) -->  ${arg}"  | tee -a /tmp/new_curl.log
+curl_old ${arg}
+EOF
+
+    sudo sed -i "s#github_proxy_placeholder#${github_proxy}#g" ${curl}
+    sudo chmod --reference ${old_curl} ${curl} && sudo chown --reference ${old_curl} ${curl}
+fi
+
+
 #
 #
-sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring 
-sudo pacman -Sy --noconfirm --needed \
-	paru vi man-db sudo lsof dos2unix base-devel bash-completion \
-  git \
-  python python-pip python-pipx \
-  
+#git
+sudo pacman -Sy --noconfirm --needed  git
+git config --global user.name "cyc_archlinux_dev"
+git config --global user.email "cyc_archlinux_dev"
+git config --global init.defaultBranch main
+git config --global url."https://github.com/lglgdouble/".insteadOf "https://github.com/lglgdouble/"
+git config --global url."${github_proxy}/https://github.com/".insteadOf "https://github.com/"
+
+#
+#
+#pip
+#https://mirrors.tuna.tsinghua.edu.cn/help/pypi/
+sudo pacman -Sy --noconfirm --needed   python python-pip python-pipx 
+pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+
+
+#
+#
+#
+#go
+#https://goproxy.cn/
+sudo pacman -Sy --noconfirm --needed  go
+go env -w GO111MODULE=on
+go env -w GOPROXY=https://goproxy.cn,direct
+
+#
+#
+#
+#
+#npm
+#https://npmmirror.com/
+sudo pacman -Sy --noconfirm --needed  npm
+npm config set registry https://registry.npmmirror.com
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring \
+	git vi man-db sudo lsof dos2unix base-devel bash-completion 
 
 #
 #
 #
 #
 #https://github.com/ultrafunkamsterdam/nodriver
-paru -Sy --noconfirm --needed \
-  google-chrome
+paru -Sy --noconfirm --needed   google-chrome
 sudo pacman -Sy --noconfirm --needed xorg-server-xvfb
-
-
 
 #
 #
@@ -90,9 +139,6 @@ sudo pacman -Sy --noconfirm --needed xorg-server-xvfb
 paru -Sy --noconfirm --needed v2raya
 sudo systemctl enable v2raya
 sudo lsof -i:2017
-
-
-
 
 #
 #
