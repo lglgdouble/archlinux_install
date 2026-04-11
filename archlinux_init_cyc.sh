@@ -68,7 +68,7 @@ sudo systemctl restart sshd
 #
 sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring 
 sudo pacman -Sy --noconfirm --needed \
-	paru sudo lsof dos2unix base-devel bash-completion \
+	paru vi man-db sudo lsof dos2unix base-devel bash-completion \
   git \
   python python-pip python-pipx \
   
