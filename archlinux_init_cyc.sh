@@ -1,11 +1,6 @@
 #!/bin/bash
 cdpwd=$(dirname "$(readlink -f "$0")")
-cd "${cdpwd}" || exit 1
-
-#
-#
-#
-cd
+cd "${cdpwd}" || exit 
 
 #
 #

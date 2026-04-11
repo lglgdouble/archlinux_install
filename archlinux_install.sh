@@ -8,7 +8,6 @@ cd "${cdpwd}" || exit 1
 #
 #
 #
-cd
 
 #
 #
@@ -60,12 +59,10 @@ genfstab -U /mnt >> /mnt/etc/fstab
 #
 #
 #
-cat <<'EOF' | tee ./install_arch_chroot.sh >/dev/null
+cat <<'EOF' | tee ./archlinux_init_root.sh >/dev/null
 #!/bin/bash
 cdpwd=$(dirname "$(readlink -f "$0")")
 cd "${cdpwd}" || exit 1
-
-cd
 
 echo 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch' >/etc/pacman.d/mirrorlist
 sed -i '/archlinuxcn/d' /etc/pacman.conf
@@ -92,9 +89,12 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
+chown cyc:cyc ./archlinux_init_cyc.sh && mv ./archlinux_init_cyc.sh /home/cyc/
+
 EOF
-chmod u+x ./install_arch_chroot.sh
-cp ./install_arch_chroot.sh /mnt/root/
+chmod u+x ./archlinux_init_root.sh
+cp ./archlinux_init_root.sh /mnt/root/
+cp ./archlinux_init_cyc.sh /mnt/root/
 
 #
 #
