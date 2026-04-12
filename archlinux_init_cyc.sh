@@ -6,8 +6,13 @@ cd "${cdpwd}" || exit
 #
 #
 export cdpwd
-export github_proxy="https://ghfast.top"
+export self_github_proxy="https://ghfast.top"
 export dockerhub_proxy="https://docker.m.daocloud.io"
+cat <<EOF | sudo tee /etc/profile.d/proxy.sh 
+#!/bin/bash
+export self_github_proxy="${self_github_proxy}"
+EOF
+
 
 #
 #
@@ -46,12 +51,11 @@ arg=""
 while [ $# != 0 ]; do
     case "$1" in
     https://raw.githubusercontent.com*)
-        xx=${1/#"https://raw.githubusercontent.com/"/"https://ghfast.top/https://raw.githubusercontent.com/"}
+        xx=${1/#"https://raw.githubusercontent.com/"/"${self_github_proxy}/https://raw.githubusercontent.com/"}
         arg="${arg} $xx"
         ;;
-
     https://github.com*)
-        xx=${1/#"https://github.com/"/"https://ghfast.top/https://github.com/"}
+        xx=${1/#"https://github.com/"/"${self_github_proxy}/https://github.com/"}
         arg="${arg} $xx"
         ;;
     *)
@@ -63,8 +67,6 @@ done
 echo "$(date '+%Y-%m-%d %H:%M:%S')  -->$(pwd) -->  ${arg}"  | tee -a /tmp/new_curl.log >/dev/null
 curl_old ${arg}
 EOF
-
-    sudo sed -i "s#github_proxy_placeholder#${github_proxy}#g" ${curl}
     sudo chmod --reference ${old_curl} ${curl} && sudo chown --reference ${old_curl} ${curl}
 fi
 
@@ -77,7 +79,7 @@ git config --global user.name "cyc_archlinux_dev"
 git config --global user.email "cyc_archlinux_dev"
 git config --global init.defaultBranch main
 git config --global url."https://github.com/lglgdouble/".insteadOf "https://github.com/lglgdouble/"
-git config --global url."${github_proxy}/https://github.com/".insteadOf "https://github.com/"
+git config --global url."${self_github_proxy}/https://github.com/".insteadOf "https://github.com/"
 
 #
 #
@@ -115,6 +117,7 @@ npm config set registry https://registry.npmmirror.com
 sudo pacman -Sy --noconfirm --needed yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide resvg imagemagick ttf-jetbrains-mono-nerd
 sudo fc-cache -fv
 cat <<'EOF' | sudo tee /etc/profile.d/yazi.sh >/dev/null
+#!/bin/bash
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	command yazi "$@" --cwd-file="$tmp"
