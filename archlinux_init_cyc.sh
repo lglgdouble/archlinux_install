@@ -23,14 +23,6 @@ echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' |
 sudo pacman -Syu --noconfirm --needed archlinuxcn-keyring  networkmanager openssh paru
 sudo systemctl enable NetworkManager
 sudo systemctl enable sshd
-sudo nmcli device status
-sudo nmcli connection modify "Wired connection 1" \
-  ipv4.method manual \
-  ipv4.addresses "192.168.1.100/24" \
-  ipv4.gateway "192.168.1.1" \
-  ipv4.dns "192.168.1.1"
-sudo systemctl restart NetworkManager
-sudo systemctl restart sshd
 
 #
 #
@@ -113,6 +105,25 @@ go env -w GOPROXY=https://goproxy.cn,direct
 sudo pacman -Sy --noconfirm --needed  npm
 npm config set registry https://registry.npmmirror.com
 
+#
+#
+#
+#
+#yazi
+#https://yazi-rs.github.io/docs/installation
+#https://github.com/ryanoasis/nerd-fonts
+sudo pacman -Sy --noconfirm --needed yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide resvg imagemagick ttf-jetbrains-mono-nerd
+sudo fc-cache -fv
+cat <<'EOF' | sudo tee /etc/profile.d/yazi.sh >/dev/null
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+EOF
+
 
 #
 #
@@ -121,8 +132,8 @@ npm config set registry https://registry.npmmirror.com
 #https://github.com/ohmyzsh/ohmyzsh/wiki
 #sh -c "$(curl -fsSL https://install.ohmyz.sh)"
 sudo pacman -Sy --noconfirm --needed  zsh  zsh-completions
+sed -i 's#plugins=(git)#plugins=(git z)#g' ~/.zshrc
 
-
 #
 #
 #
@@ -132,7 +143,7 @@ sudo pacman -Sy --noconfirm --needed  zsh  zsh-completions
 #
 #
 #
-sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring \
+sudo pacman -Sy --noconfirm --needed \
 	git vi man-db sudo lsof dos2unix base-devel bash-completion 
 
 #
