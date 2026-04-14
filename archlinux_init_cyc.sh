@@ -12,14 +12,15 @@ export dockerhub_proxy="https://docker.m.daocloud.io"
 #
 #
 #
-sudo ls || exit 111
-echo 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist
+sudo ls -l || exit 111
+echo 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null
 sudo sed -i '/archlinuxcn/d' /etc/pacman.conf
-echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' | sudo tee -a /etc/pacman.conf
-cat <<EOF | sudo tee /etc/profile.d/proxy.sh 
+echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' | sudo tee -a /etc/pacman.conf >/dev/null
+cat <<EOF | sudo tee /etc/profile.d/proxy.sh >/dev/null
 #!/bin/bash
 export self_github_proxy="${self_github_proxy}"
 EOF
+
 #
 #
 #
@@ -27,7 +28,8 @@ sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring || exit 111
 sudo pacman -Sy --noconfirm --needed paru || exit 111
 sudo pacman -Sy --noconfirm --needed \
     networkmanager openssh \
-    git vi man-db sudo lsof dos2unix base-devel bash-completion 
+    git vi man-db sudo lsof dos2unix base-devel bash-completion \
+    || exit 111
 sudo systemctl enable NetworkManager
 sudo systemctl enable sshd
 
@@ -36,12 +38,11 @@ sudo systemctl enable sshd
 #
 #curl
 change_curl="1"
+sudo pacman -Sy --noconfirm curl
 if [ "$change_curl" = "" ]; then
     echo "。。。。。。。。。。。。。恢复curl"
-    sudo pacman -Sy --noconfirm curl
 else
     echo "。。。。。。。。。。。。。改变curl"
-    sudo pacman -Sy --noconfirm curl
     curl=$(readlink -f $(which curl))
     old_curl=${curl}_old
     sudo mv ${curl} ${old_curl}

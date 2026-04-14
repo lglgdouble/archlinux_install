@@ -12,6 +12,7 @@ cd "${cdpwd}" || exit 1
 #
 #
 #
+lsblk
 read -p "确认继续？(y/n): " confirm
 if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
     echo "执行..."
