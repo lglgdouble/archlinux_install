@@ -8,17 +8,26 @@ cd "${cdpwd}" || exit
 export cdpwd
 export self_github_proxy="https://ghfast.top"
 export dockerhub_proxy="https://docker.m.daocloud.io"
-cat <<EOF | sudo tee /etc/profile.d/proxy.sh 
-#!/bin/bash
-export self_github_proxy="${self_github_proxy}"
-EOF
 
 #
 #
 #
+sudo ls || exit 111
 echo 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist
 sudo sed -i '/archlinuxcn/d' /etc/pacman.conf
 echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' | sudo tee -a /etc/pacman.conf
+cat <<EOF | sudo tee /etc/profile.d/proxy.sh 
+#!/bin/bash
+export self_github_proxy="${self_github_proxy}"
+EOF
+#
+#
+#
+sudo pacman -Sy --noconfirm --needed \
+    archlinuxcn-keyring  networkmanager openssh paru \
+    git vi man-db sudo lsof dos2unix base-devel bash-completion 
+sudo systemctl enable NetworkManager
+sudo systemctl enable sshd
 
 #
 #
@@ -27,10 +36,10 @@ echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' |
 change_curl="1"
 if [ "$change_curl" = "" ]; then
     echo "。。。。。。。。。。。。。恢复curl"
-    sudo pacman -Syu --noconfirm curl
+    sudo pacman -Sy --noconfirm curl
 else
     echo "。。。。。。。。。。。。。改变curl"
-    sudo pacman -Syu --noconfirm curl
+    sudo pacman -Sy --noconfirm curl
     curl=$(readlink -f $(which curl))
     old_curl=${curl}_old
     sudo mv ${curl} ${old_curl}
@@ -70,15 +79,6 @@ git config --global user.email "cyc_archlinux_dev"
 git config --global init.defaultBranch main
 git config --global url."https://github.com/lglgdouble/".insteadOf "https://github.com/lglgdouble/"
 git config --global url."${self_github_proxy}/https://github.com/".insteadOf "https://github.com/"
-
-#
-#
-#
-sudo pacman -Syu --noconfirm --needed \
-    archlinuxcn-keyring  networkmanager openssh paru \
-    git vi man-db sudo lsof dos2unix base-devel bash-completion 
-sudo systemctl enable NetworkManager
-sudo systemctl enable sshd
 
 #
 #
