@@ -167,7 +167,7 @@ sudo fc-cache -f
 #
 #输入法，只对wayland设置
 #https://wiki.archlinux.org/title/Fcitx5
-sudo pacman  -Sy --noconfirm --needed fcitx5-im fcitx5-rime
+sudo pacman  -Sy --noconfirm --needed fcitx5-im fcitx5-chinese-addons fcitx5-lua
 
 #
 #
@@ -202,6 +202,7 @@ paru -Sy --noconfirm --needed localsend-bin jocalsend localsend-go #可能需要
 #https://wiki.archlinux.org/title/Desktop_entries#Modify_environment_variables
 #https://wiki.archlinux.org.cn/title/WeChat
 function add_fcitx() {
+    mkdir -p ~/.local/share/applications/
     cp /usr/share/applications/$1.desktop ~/.local/share/applications/
     sed -i 's#^Exec=/#Exec=env QT_IM_MODULE=fcitx /#' ~/.local/share/applications/$1.desktop
 }
