@@ -23,8 +23,10 @@ EOF
 #
 #
 #
+sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring || exit 111
+sudo pacman -Sy --noconfirm --needed paru || exit 111
 sudo pacman -Sy --noconfirm --needed \
-    archlinuxcn-keyring  networkmanager openssh paru \
+    networkmanager openssh \
     git vi man-db sudo lsof dos2unix base-devel bash-completion 
 sudo systemctl enable NetworkManager
 sudo systemctl enable sshd
@@ -138,10 +140,10 @@ sed -i 's#plugins=(git)#plugins=(git z)#g' ~/.zshrc
 #
 #niri
 #https://danklinux.com/
-#curl -fsSL https://install.danklinux.com | sh
 #https://wiki.archlinux.org/title/VMware/Install_Arch_Linux_as_a_guest
 sudo pacman -Sy --noconfirm --needed  sddm  open-vm-tools 
 sudo systemctl enable sddm vmtoolsd vmware-vmblock-fuse
+curl -fsSL https://install.danklinux.com | sh
 
 #
 #
