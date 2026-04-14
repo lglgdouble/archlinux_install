@@ -13,7 +13,6 @@ cat <<EOF | sudo tee /etc/profile.d/proxy.sh
 export self_github_proxy="${self_github_proxy}"
 EOF
 
-
 #
 #
 #
@@ -21,15 +20,6 @@ echo 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch' | sudo tee /e
 sudo sed -i '/archlinuxcn/d' /etc/pacman.conf
 echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' | sudo tee -a /etc/pacman.conf
 
-
-#
-#
-#
-sudo pacman -Syu --noconfirm --needed archlinuxcn-keyring  networkmanager openssh paru
-sudo systemctl enable NetworkManager
-sudo systemctl enable sshd
-
-#
 #
 #
 #
@@ -70,7 +60,7 @@ EOF
     sudo chmod --reference ${old_curl} ${curl} && sudo chown --reference ${old_curl} ${curl}
 fi
 
-
+#
 #
 #
 #git
@@ -83,11 +73,20 @@ git config --global url."${self_github_proxy}/https://github.com/".insteadOf "ht
 
 #
 #
-#pip
+#
+sudo pacman -Syu --noconfirm --needed \
+    archlinuxcn-keyring  networkmanager openssh paru \
+    git vi man-db sudo lsof dos2unix base-devel bash-completion 
+sudo systemctl enable NetworkManager
+sudo systemctl enable sshd
+
+#
+#
+#
+#python
 #https://mirrors.tuna.tsinghua.edu.cn/help/pypi/
 sudo pacman -Sy --noconfirm --needed   python python-pip python-pipx 
 pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
-
 
 #
 #
@@ -101,7 +100,6 @@ go env -w GOPROXY=https://goproxy.cn,direct
 #
 #
 #
-#
 #npm
 #https://npmmirror.com/
 sudo pacman -Sy --noconfirm --needed  npm
@@ -110,12 +108,11 @@ npm config set registry https://registry.npmmirror.com
 #
 #
 #
-#
 #yazi
 #https://yazi-rs.github.io/docs/installation
 #https://github.com/ryanoasis/nerd-fonts
 sudo pacman -Sy --noconfirm --needed yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide resvg imagemagick ttf-jetbrains-mono-nerd
-sudo fc-cache -fv
+sudo fc-cache -f
 cat <<'EOF' | sudo tee /etc/profile.d/yazi.sh >/dev/null
 #!/bin/bash
 function y() {
@@ -127,38 +124,60 @@ function y() {
 }
 EOF
 
-
 #
 #
 #
 #zsh
 #https://github.com/ohmyzsh/ohmyzsh/wiki
-#sh -c "$(curl -fsSL https://install.ohmyz.sh)"
 sudo pacman -Sy --noconfirm --needed  zsh  zsh-completions
+sh -c "$(curl -fsSL https://install.ohmyz.sh)"
 sed -i 's#plugins=(git)#plugins=(git z)#g' ~/.zshrc
 
 #
 #
 #
-#
-#
-#
-#
-#
-#
-sudo pacman -Sy --noconfirm --needed \
-	git vi man-db sudo lsof dos2unix base-devel bash-completion 
+#niri
+#https://danklinux.com/
+#curl -fsSL https://install.danklinux.com | sh
+#https://wiki.archlinux.org/title/VMware/Install_Arch_Linux_as_a_guest
+sudo pacman -Sy --noconfirm --needed  sddm  open-vm-tools 
+sudo systemctl enable sddm vmtoolsd vmware-vmblock-fuse
 
 #
 #
 #
+#中文字体
+#https://wiki.archlinux.org/title/Localization/Simplified_Chinese
+sudo pacman  -Sy --noconfirm --needed adobe-source-han-sans-cn-fonts \
+    adobe-source-han-serif-cn-fonts \
+    noto-fonts-cjk \
+    wqy-microhei \
+    wqy-microhei-lite \
+    wqy-bitmapfont \
+    wqy-zenhei \
+    ttf-arphic-ukai \
+    ttf-arphic-uming 
+sudo fc-cache -f
+
 #
+#
+#
+#输入法，只对wayland设置
+#https://wiki.archlinux.org/title/Fcitx5
+sudo pacman  -Sy --noconfirm --needed fcitx5-im fcitx5-rime
+
+#
+#
+#
+#nodriver 爬虫网页
 #https://github.com/ultrafunkamsterdam/nodriver
 paru -Sy --noconfirm --needed   google-chrome
 sudo pacman -Sy --noconfirm --needed xorg-server-xvfb
 
 #
 #
+#
+#v2raya
 #https://v2raya.org/
 paru -Sy --noconfirm --needed v2raya
 sudo systemctl enable v2raya
@@ -166,9 +185,22 @@ sudo lsof -i:2017
 
 #
 #
+#
+#localsend
 #https://localsend.org/zh-CN
 #https://github.com/meowrain/localsend-go
 #https://github.com/SykikXO/jocalsend
 paru -Sy --noconfirm --needed localsend-bin jocalsend localsend-go #可能需要设置http代理，git下载慢
 
-
+# 
+#
+#
+#微信
+#https://wiki.archlinux.org/title/Desktop_entries#Modify_environment_variables
+#https://wiki.archlinux.org.cn/title/WeChat
+function add_fcitx() {
+    cp /usr/share/applications/$1.desktop ~/.local/share/applications/
+    sed -i 's#^Exec=/#Exec=env QT_IM_MODULE=fcitx /#' ~/.local/share/applications/$1.desktop
+}
+paru -Sy --noconfirm --needed wechat-bin 
+add_fcitx wechat
