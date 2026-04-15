@@ -204,7 +204,21 @@ paru -Sy --noconfirm --needed localsend-bin jocalsend localsend-go #可能需要
 function add_fcitx() {
     mkdir -p ~/.local/share/applications/
     cp /usr/share/applications/$1.desktop ~/.local/share/applications/
-    sed -i 's#^Exec=/#Exec=env QT_IM_MODULE=fcitx /#' ~/.local/share/applications/$1.desktop
+    sed -i 's#^Exec=#Exec=env QT_IM_MODULE=fcitx #' ~/.local/share/applications/$1.desktop
 }
 paru -Sy --noconfirm --needed wechat-bin 
 add_fcitx wechat
+
+#
+#
+#
+#迅雷
+#https://aur.archlinux.org/packages/xunlei-bin
+paru -Sy --noconfirm --needed xunlei-bin
+
+#
+#
+#
+#visual-studio-code-bin
+#https://wiki.archlinux.org/title/Visual_Studio_Code
+paru -Sy --noconfirm --needed visual-studio-code-bin
