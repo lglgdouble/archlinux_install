@@ -28,7 +28,7 @@ sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring || exit 111
 sudo pacman -Sy --noconfirm --needed paru || exit 111
 sudo pacman -Sy --noconfirm --needed \
     networkmanager openssh \
-    git vi man-db sudo lsof dos2unix base-devel bash-completion \
+    git vi man-db sudo lsof dos2unix base-devel bash-completion unzip \
     || exit 111
 sudo systemctl enable NetworkManager
 sudo systemctl enable sshd
@@ -222,3 +222,23 @@ paru -Sy --noconfirm --needed xunlei-bin
 #visual-studio-code-bin
 #https://wiki.archlinux.org/title/Visual_Studio_Code
 paru -Sy --noconfirm --needed visual-studio-code-bin
+
+#
+#
+#
+#fastfetch
+function add_fastfetch() {
+    #https://github.com/AnabasaSoft/fastfetch-configurator
+    fastfetchconfigstr="alias fastfetch_config='(git clone https://github.com/AnabasaSoft/fastfetch-configurator.git ~/.fastfetch-configurator; cd ~/.fastfetch-configurator; python -m venv .venv; source .venv/bin/activate; pip install PyQt6 ansi2html; python main.py)'"
+    ftmpystr="alias fastfetch_ftm='(bash <(curl -fsSL https://raw.githubusercontent.com/itz-dev-tasavvuf/fastfetch-theme-manager/main/install.sh); ~/.local/bin/ftm pick)'" #https://github.com/tasavvuf/fastfetch-theme-manager
+    fastcatstr="alias fastfetch_cat='(git clone https://github.com/m3tozz/FastCat.git ~/.FastCat; cd ~/.FastCat; bash ./install-icons.sh; bash ./fastcat.sh --shell)'" #https://github.com/m3tozz/FastCat
+    sed -i '/fastfetch_config/d' $1
+    sed -i '/fastfetch_ftm/d' $1
+    sed -i '/fastfetch_cat/d' $1
+    echo ${fastfetchconfigstr} >> $1
+    echo ${ftmpystr} >> $1
+    echo ${fastcatstr} >> $1
+}
+sudo pacman -Sy --noconfirm --needed fastfetch
+add_fastfetch ~/.bashrc
+add_fastfetch ~/.zshrc
