@@ -204,7 +204,6 @@ sudo lsof -i:2017
 #https://github.com/SykikXO/jocalsend
 paru -Sy --noconfirm --needed localsend-bin jocalsend localsend-go #可能需要设置http代理，git下载慢
 
-exit 123
 #
 #
 #
@@ -216,14 +215,31 @@ exit 123
 #
 #
 #
+#
+#
+
+exit 13
+
+#
+#
+#
+#open-vm-tools 
+#https://wiki.archlinux.org/title/VMware/Install_Arch_Linux_as_a_guest
+sudo pacman -Sy --noconfirm --needed   open-vm-tools 
+sudo systemctl enable  vmtoolsd vmware-vmblock-fuse
+
+#
+#
+#
+#sddm
+sudo pacman -Sy --noconfirm --needed  sddm  
+sudo systemctl enable sddm
+
 #
 #
 #
 #niri
 #https://danklinux.com/
-#https://wiki.archlinux.org/title/VMware/Install_Arch_Linux_as_a_guest
-sudo pacman -Sy --noconfirm --needed  sddm  open-vm-tools 
-sudo systemctl enable sddm vmtoolsd vmware-vmblock-fuse
 curl -fsSL https://install.danklinux.com | sh
 
 #
