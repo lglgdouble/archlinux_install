@@ -6,8 +6,27 @@ cd "${cdpwd}" || exit
 #
 #
 export cdpwd
-export self_github_proxy="https://ghfast.top"
+export github_proxy="https://ghfast.top"
 export dockerhub_proxy="https://docker.m.daocloud.io"
+
+#
+#
+#
+function add_custom_text(){
+    local file="${1}"
+    local text="${2}"
+    local mod_beg="${3}_beg.........."
+    local mod_end="${3}_end.........."
+    sed -i "/${mod_beg}/,/${mod_end}/d" ${file}
+
+cat <<EOF | tee -a ${file} >/dev/null
+
+#####################################${mod_beg}
+${text}
+#####################################${mod_end}
+
+EOF
+}
 
 #
 #
@@ -20,18 +39,9 @@ echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' |
 #
 #
 #
-cat <<EOF | sudo tee /etc/profile.d/proxy.sh >/dev/null
-#!/bin/bash
-export self_github_proxy="${self_github_proxy}"
-EOF
-
-#
-#
-#
 sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring || exit 111
 sudo pacman -Sy --noconfirm --needed paru || exit 111
-sudo pacman -Sy --noconfirm --needed \
-    networkmanager openssh \
+sudo pacman -Sy --noconfirm --needed networkmanager openssh \
     git vi man-db sudo lsof dos2unix base-devel bash-completion unzip \
     || exit 111
 sudo systemctl enable NetworkManager
@@ -57,11 +67,11 @@ arg=""
 while [ $# != 0 ]; do
     case "$1" in
     https://raw.githubusercontent.com*)
-        xx=${1/#"https://raw.githubusercontent.com/"/"${self_github_proxy}/https://raw.githubusercontent.com/"}
+        xx=${1/#"https://raw.githubusercontent.com/"/"github_proxy_placeholder/https://raw.githubusercontent.com/"}
         arg="${arg} $xx"
         ;;
     https://github.com*)
-        xx=${1/#"https://github.com/"/"${self_github_proxy}/https://github.com/"}
+        xx=${1/#"https://github.com/"/"github_proxy_placeholder/https://github.com/"}
         arg="${arg} $xx"
         ;;
     *)
@@ -73,6 +83,7 @@ done
 echo "$(date '+%Y-%m-%d %H:%M:%S')  -->$(pwd) -->  ${arg}"  | tee -a /tmp/new_curl.log >/dev/null
 curl_old ${arg}
 EOF
+    sudo sed -i "s#github_proxy_placeholder#${github_proxy}#g" ${curl}
     sudo chmod --reference ${old_curl} ${curl} && sudo chown --reference ${old_curl} ${curl}
 fi
 
@@ -85,7 +96,7 @@ git config --global user.name "cyc_archlinux_dev"
 git config --global user.email "cyc_archlinux_dev"
 git config --global init.defaultBranch main
 git config --global url."https://github.com/lglgdouble/".insteadOf "https://github.com/lglgdouble/"
-git config --global url."${self_github_proxy}/https://github.com/".insteadOf "https://github.com/"
+git config --global url."${github_proxy}/https://github.com/".insteadOf "https://github.com/"
 
 #
 #
@@ -129,39 +140,43 @@ sed -i 's#plugins=(git)#plugins=(git z)#g' ~/.zshrc
 #https://github.com/ryanoasis/nerd-fonts
 sudo pacman -Sy --noconfirm --needed yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide resvg imagemagick ttf-jetbrains-mono-nerd
 sudo fc-cache -f
-cat <<'EOF' | sudo tee /etc/profile.d/yazi.sh >/dev/null
-#!/bin/bash
-function y() {
+yazi_y=\
+'function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	command yazi "$@" --cwd-file="$tmp"
 	IFS= read -r -d '' cwd < "$tmp"
 	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
 	rm -f -- "$tmp"
-}
-EOF
+}'
+add_custom_text ~/.bashrc "${yazi_y}" "yazi_y"
+add_custom_text ~/.zshrc "${yazi_y}" "yazi_y"
 
 #
 #
 #
 #fastfetch
-function add_fastfetch() {
-    #https://github.com/AnabasaSoft/fastfetch-configurator
-    fastfetchconfigstr="alias fastfetch_config='(git clone https://github.com/AnabasaSoft/fastfetch-configurator.git ~/.fastfetch-configurator; cd ~/.fastfetch-configurator; python -m venv .venv; source .venv/bin/activate; pip install PyQt6 ansi2html; python main.py)'"
-    ftmpystr="alias fastfetch_ftm='(bash <(curl -fsSL https://raw.githubusercontent.com/itz-dev-tasavvuf/fastfetch-theme-manager/main/install.sh); ~/.local/bin/ftm pick)'" #https://github.com/tasavvuf/fastfetch-theme-manager
-    fastcatstr="alias fastfetch_cat='(git clone https://github.com/m3tozz/FastCat.git ~/.FastCat; cd ~/.FastCat; bash ./install-icons.sh; bash ./fastcat.sh --shell)'" #https://github.com/m3tozz/FastCat
-    grubthemestr="alias grubtheme='(git clone https://github.com/vinceliuice/grub2-themes.git ~/.grub2-themes; cd ~/.grub2-themes; sudo ./install.sh;)'" #https://github.com/vinceliuice/grub2-themes
-    sed -i '/fastfetch_config/d' $1
-    sed -i '/fastfetch_ftm/d' $1
-    sed -i '/fastfetch_cat/d' $1
-    sed -i '/grubtheme/d' $1
-    echo ${fastfetchconfigstr} >> $1
-    echo ${ftmpystr} >> $1
-    echo ${fastcatstr} >> $1
-    echo ${grubthemestr} >> $1
-}
 sudo pacman -Sy --noconfirm --needed fastfetch
-add_fastfetch ~/.bashrc
-add_fastfetch ~/.zshrc
+fastfetchconfigstr="alias fastfetch_config='(git clone https://github.com/AnabasaSoft/fastfetch-configurator.git ~/.fastfetch-configurator; cd ~/.fastfetch-configurator; python -m venv .venv; source .venv/bin/activate; pip install PyQt6 ansi2html; python main.py)'" #https://github.com/AnabasaSoft/fastfetch-configurator
+ftmpystr="alias fastfetch_ftm='(bash <(curl -fsSL https://raw.githubusercontent.com/itz-dev-tasavvuf/fastfetch-theme-manager/main/install.sh); ~/.local/bin/ftm pick)'" #https://github.com/tasavvuf/fastfetch-theme-manager
+fastcatstr="alias fastfetch_cat='(git clone https://github.com/m3tozz/FastCat.git ~/.FastCat; cd ~/.FastCat; bash ./install-icons.sh; bash ./fastcat.sh --shell)'" #https://github.com/m3tozz/FastCat
+add_custom_text ~/.bashrc "fastfetch" "fastfetch"
+add_custom_text ~/.bashrc "${fastfetchconfigstr}" "fastfetch-configurator"
+add_custom_text ~/.bashrc "${ftmpystr}" "fastfetch-theme-manager"
+add_custom_text ~/.bashrc "${fastcatstr}" "FastCat"
+
+add_custom_text ~/.zshrc "fastfetch" "fastfetch"
+add_custom_text ~/.zshrc "${fastfetchconfigstr}" "fastfetch-configurator"
+add_custom_text ~/.zshrc "${ftmpystr}" "fastfetch-theme-manager"
+add_custom_text ~/.zshrc "${fastcatstr}" "FastCat"
+
+#
+#
+#
+#grub2-themes
+grubthemestr="alias grubtheme='(git clone https://github.com/vinceliuice/grub2-themes.git ~/.grub2-themes; cd ~/.grub2-themes; sudo ./install.sh;)'" #https://github.com/vinceliuice/grub2-themes
+add_custom_text ~/.bashrc "${grubthemestr}" "grub2-themes"
+add_custom_text ~/.zshrc "${grubthemestr}" "grub2-themes"
+
 
 #
 #
