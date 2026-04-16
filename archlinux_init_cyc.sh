@@ -149,12 +149,15 @@ function add_fastfetch() {
     fastfetchconfigstr="alias fastfetch_config='(git clone https://github.com/AnabasaSoft/fastfetch-configurator.git ~/.fastfetch-configurator; cd ~/.fastfetch-configurator; python -m venv .venv; source .venv/bin/activate; pip install PyQt6 ansi2html; python main.py)'"
     ftmpystr="alias fastfetch_ftm='(bash <(curl -fsSL https://raw.githubusercontent.com/itz-dev-tasavvuf/fastfetch-theme-manager/main/install.sh); ~/.local/bin/ftm pick)'" #https://github.com/tasavvuf/fastfetch-theme-manager
     fastcatstr="alias fastfetch_cat='(git clone https://github.com/m3tozz/FastCat.git ~/.FastCat; cd ~/.FastCat; bash ./install-icons.sh; bash ./fastcat.sh --shell)'" #https://github.com/m3tozz/FastCat
+    grubthemestr="alias grubtheme='(git clone https://github.com/vinceliuice/grub2-themes.git ~/.grub2-themes; cd ~/.grub2-themes; sudo ./install.sh;)'" #https://github.com/vinceliuice/grub2-themes
     sed -i '/fastfetch_config/d' $1
     sed -i '/fastfetch_ftm/d' $1
     sed -i '/fastfetch_cat/d' $1
+    sed -i '/grubtheme/d' $1
     echo ${fastfetchconfigstr} >> $1
     echo ${ftmpystr} >> $1
     echo ${fastcatstr} >> $1
+    echo ${grubthemestr} >> $1
 }
 sudo pacman -Sy --noconfirm --needed fastfetch
 add_fastfetch ~/.bashrc
