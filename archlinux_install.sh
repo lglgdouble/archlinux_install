@@ -8,6 +8,11 @@ cd "${cdpwd}" || exit 1
 #
 #
 #
+sixty=$(cat /sys/firmware/efi/fw_platform_size)
+if [ "$sixty" != "64" ]; then
+    echo "sixty不等于 64"
+    exit 101
+fi
 
 #
 #
@@ -62,8 +67,6 @@ genfstab -U /mnt >> /mnt/etc/fstab
 #
 cat <<'EOF' | tee ./archlinux_init_root.sh >/dev/null
 #!/bin/bash
-cdpwd=$(dirname "$(readlink -f "$0")")
-cd "${cdpwd}" || exit 1
 
 echo 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch' >/etc/pacman.d/mirrorlist
 sed -i '/archlinuxcn/d' /etc/pacman.conf
