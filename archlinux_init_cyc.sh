@@ -16,6 +16,10 @@ sudo ls -l || exit 111
 echo 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null
 sudo sed -i '/archlinuxcn/d' /etc/pacman.conf
 echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' | sudo tee -a /etc/pacman.conf >/dev/null
+
+#
+#
+#
 cat <<EOF | sudo tee /etc/profile.d/proxy.sh >/dev/null
 #!/bin/bash
 export self_github_proxy="${self_github_proxy}"
@@ -111,6 +115,15 @@ npm config set registry https://registry.npmmirror.com
 #
 #
 #
+#zsh
+#https://github.com/ohmyzsh/ohmyzsh/wiki
+sudo pacman -Sy --noconfirm --needed  zsh  zsh-completions
+sh -c "$(curl -fsSL https://install.ohmyz.sh)"
+sed -i 's#plugins=(git)#plugins=(git z)#g' ~/.zshrc
+
+#
+#
+#
 #yazi
 #https://yazi-rs.github.io/docs/installation
 #https://github.com/ryanoasis/nerd-fonts
@@ -130,44 +143,22 @@ EOF
 #
 #
 #
-#zsh
-#https://github.com/ohmyzsh/ohmyzsh/wiki
-sudo pacman -Sy --noconfirm --needed  zsh  zsh-completions
-sh -c "$(curl -fsSL https://install.ohmyz.sh)"
-sed -i 's#plugins=(git)#plugins=(git z)#g' ~/.zshrc
-
-#
-#
-#
-#niri
-#https://danklinux.com/
-#https://wiki.archlinux.org/title/VMware/Install_Arch_Linux_as_a_guest
-sudo pacman -Sy --noconfirm --needed  sddm  open-vm-tools 
-sudo systemctl enable sddm vmtoolsd vmware-vmblock-fuse
-curl -fsSL https://install.danklinux.com | sh
-
-#
-#
-#
-#中文字体
-#https://wiki.archlinux.org/title/Localization/Simplified_Chinese
-sudo pacman  -Sy --noconfirm --needed adobe-source-han-sans-cn-fonts \
-    adobe-source-han-serif-cn-fonts \
-    noto-fonts-cjk \
-    wqy-microhei \
-    wqy-microhei-lite \
-    wqy-bitmapfont \
-    wqy-zenhei \
-    ttf-arphic-ukai \
-    ttf-arphic-uming 
-sudo fc-cache -f
-
-#
-#
-#
-#输入法，只对wayland设置
-#https://wiki.archlinux.org/title/Fcitx5
-sudo pacman  -Sy --noconfirm --needed fcitx5-im fcitx5-chinese-addons fcitx5-lua
+#fastfetch
+function add_fastfetch() {
+    #https://github.com/AnabasaSoft/fastfetch-configurator
+    fastfetchconfigstr="alias fastfetch_config='(git clone https://github.com/AnabasaSoft/fastfetch-configurator.git ~/.fastfetch-configurator; cd ~/.fastfetch-configurator; python -m venv .venv; source .venv/bin/activate; pip install PyQt6 ansi2html; python main.py)'"
+    ftmpystr="alias fastfetch_ftm='(bash <(curl -fsSL https://raw.githubusercontent.com/itz-dev-tasavvuf/fastfetch-theme-manager/main/install.sh); ~/.local/bin/ftm pick)'" #https://github.com/tasavvuf/fastfetch-theme-manager
+    fastcatstr="alias fastfetch_cat='(git clone https://github.com/m3tozz/FastCat.git ~/.FastCat; cd ~/.FastCat; bash ./install-icons.sh; bash ./fastcat.sh --shell)'" #https://github.com/m3tozz/FastCat
+    sed -i '/fastfetch_config/d' $1
+    sed -i '/fastfetch_ftm/d' $1
+    sed -i '/fastfetch_cat/d' $1
+    echo ${fastfetchconfigstr} >> $1
+    echo ${ftmpystr} >> $1
+    echo ${fastcatstr} >> $1
+}
+sudo pacman -Sy --noconfirm --needed fastfetch
+add_fastfetch ~/.bashrc
+add_fastfetch ~/.zshrc
 
 #
 #
@@ -194,6 +185,51 @@ sudo lsof -i:2017
 #https://github.com/meowrain/localsend-go
 #https://github.com/SykikXO/jocalsend
 paru -Sy --noconfirm --needed localsend-bin jocalsend localsend-go #可能需要设置http代理，git下载慢
+
+exit 123
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#niri
+#https://danklinux.com/
+#https://wiki.archlinux.org/title/VMware/Install_Arch_Linux_as_a_guest
+sudo pacman -Sy --noconfirm --needed  sddm  open-vm-tools 
+sudo systemctl enable sddm vmtoolsd vmware-vmblock-fuse
+curl -fsSL https://install.danklinux.com | sh
+
+#
+#
+#
+#输入法，只对wayland设置
+#https://wiki.archlinux.org/title/Fcitx5
+sudo pacman  -Sy --noconfirm --needed fcitx5-im fcitx5-chinese-addons fcitx5-lua
+
+#
+#
+#
+#中文字体
+#https://wiki.archlinux.org/title/Localization/Simplified_Chinese
+sudo pacman  -Sy --noconfirm --needed adobe-source-han-sans-cn-fonts \
+    adobe-source-han-serif-cn-fonts \
+    noto-fonts-cjk \
+    wqy-microhei \
+    wqy-microhei-lite \
+    wqy-bitmapfont \
+    wqy-zenhei \
+    ttf-arphic-ukai \
+    ttf-arphic-uming 
+sudo fc-cache -f
 
 # 
 #
@@ -222,23 +258,3 @@ paru -Sy --noconfirm --needed xunlei-bin
 #visual-studio-code-bin
 #https://wiki.archlinux.org/title/Visual_Studio_Code
 paru -Sy --noconfirm --needed visual-studio-code-bin
-
-#
-#
-#
-#fastfetch
-function add_fastfetch() {
-    #https://github.com/AnabasaSoft/fastfetch-configurator
-    fastfetchconfigstr="alias fastfetch_config='(git clone https://github.com/AnabasaSoft/fastfetch-configurator.git ~/.fastfetch-configurator; cd ~/.fastfetch-configurator; python -m venv .venv; source .venv/bin/activate; pip install PyQt6 ansi2html; python main.py)'"
-    ftmpystr="alias fastfetch_ftm='(bash <(curl -fsSL https://raw.githubusercontent.com/itz-dev-tasavvuf/fastfetch-theme-manager/main/install.sh); ~/.local/bin/ftm pick)'" #https://github.com/tasavvuf/fastfetch-theme-manager
-    fastcatstr="alias fastfetch_cat='(git clone https://github.com/m3tozz/FastCat.git ~/.FastCat; cd ~/.FastCat; bash ./install-icons.sh; bash ./fastcat.sh --shell)'" #https://github.com/m3tozz/FastCat
-    sed -i '/fastfetch_config/d' $1
-    sed -i '/fastfetch_ftm/d' $1
-    sed -i '/fastfetch_cat/d' $1
-    echo ${fastfetchconfigstr} >> $1
-    echo ${ftmpystr} >> $1
-    echo ${fastcatstr} >> $1
-}
-sudo pacman -Sy --noconfirm --needed fastfetch
-add_fastfetch ~/.bashrc
-add_fastfetch ~/.zshrc
