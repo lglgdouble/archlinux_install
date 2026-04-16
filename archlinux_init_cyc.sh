@@ -28,6 +28,14 @@ ${text}
 EOF
 }
 
+function add_key_value(){
+    local file="${1}"
+    local key="${2}"
+    local text="${3}"
+    sed -i "/${key}/d" ${file}
+    echo "${text}" >> ${file}
+}
+
 #
 #
 #
@@ -202,7 +210,8 @@ sudo lsof -i:2017
 #https://localsend.org/zh-CN
 #https://github.com/meowrain/localsend-go
 #https://github.com/SykikXO/jocalsend
-paru -Sy --noconfirm --needed localsend-bin jocalsend localsend-go #可能需要设置http代理，git下载慢
+paru -Sy --noconfirm --needed localsend-bin localsend-go 
+#paru -Sy --noconfirm --needed jocalsend 
 
 #
 #
@@ -217,8 +226,6 @@ paru -Sy --noconfirm --needed localsend-bin jocalsend localsend-go #可能需要
 #
 #
 #
-
-exit 13
 
 #
 #
@@ -240,7 +247,11 @@ sudo systemctl enable sddm
 #
 #niri
 #https://danklinux.com/
+#https://wiki.archlinux.org/title/Environment_variables#Per_Wayland_session
+#https://danklinux.com/docs/dankmaterialshell/managing#environment-variables
 curl -fsSL https://install.danklinux.com | sh
+add_key_value ~/.config/environment.d/90-dms.conf "LANG" "LANG=zh_CN.UTF-8"
+add_key_value ~/.config/environment.d/90-dms.conf "LANGUAGE" "LANGUAGE=zh_CN:en_US"
 
 #
 #
