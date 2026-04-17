@@ -17,13 +17,16 @@ function add_custom_text(){
     local text="${2}"
     local mod_beg="${3}_beg.........."
     local mod_end="${3}_end.........."
+    sed '/^$/N;/^\n$/D' ${file}
     sed -i "/${mod_beg}/,/${mod_end}/d" ${file}
 
 cat <<EOF | tee -a ${file} >/dev/null
+
 #####################################${mod_beg}
 ${text}
 #####################################${mod_end}
 EOF
+
 }
 
 function add_key_value(){
