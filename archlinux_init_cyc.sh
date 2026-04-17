@@ -20,11 +20,9 @@ function add_custom_text(){
     sed -i "/${mod_beg}/,/${mod_end}/d" ${file}
 
 cat <<EOF | tee -a ${file} >/dev/null
-
 #####################################${mod_beg}
 ${text}
 #####################################${mod_end}
-
 EOF
 }
 
@@ -50,7 +48,7 @@ echo -e '[archlinuxcn]\nServer = https://mirrors.aliyun.com/archlinuxcn/$arch' |
 sudo pacman -Sy --noconfirm --needed archlinuxcn-keyring || exit 111
 sudo pacman -Sy --noconfirm --needed paru || exit 111
 sudo pacman -Sy --noconfirm --needed networkmanager openssh \
-    git vi man-db sudo lsof dos2unix base-devel bash-completion unzip \
+    curl wget git vi man-db sudo lsof dos2unix base-devel bash-completion unzip \
     || exit 111
 sudo systemctl enable NetworkManager
 sudo systemctl enable sshd
@@ -245,6 +243,18 @@ sudo systemctl enable sddm
 #
 #
 #
+#kitty
+#https://github.com/kovidgoyal/kitty
+#https://sw.kovidgoyal.net/kitty/
+#https://github.com/kovidgoyal/kitty-themes
+#https://github.com/catppuccin/kitty
+sudo pacman -Sy --noconfirm --needed  kitty 
+#kitten choose-fonts
+#kitten themes
+
+#
+#
+#
 #niri
 #https://danklinux.com/
 #https://wiki.archlinux.org/title/Environment_variables#Per_Wayland_session
@@ -303,3 +313,14 @@ paru -Sy --noconfirm --needed xunlei-bin
 #visual-studio-code-bin
 #https://wiki.archlinux.org/title/Visual_Studio_Code
 paru -Sy --noconfirm --needed visual-studio-code-bin
+
+#
+#
+#
+#starship
+#https://starship.rs/zh-CN/guide/
+sudo pacman -Sy --noconfirm --needed ttf-firacode-nerd starship
+sudo fc-cache -f
+add_custom_text ~/.bashrc 'eval "$(starship init bash)"' "Starship"
+add_custom_text ~/.zshrc  'eval "$(starship init zsh)"' "Starship"
+wget -O ~/.config/starship.toml https://starship.rs/presets/toml/pure-preset.toml #https://starship.rs/zh-CN/presets/#no-nerd-fonts
